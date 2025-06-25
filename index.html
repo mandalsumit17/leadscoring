@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Lead Quality & Quantity Manager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            padding: 32px;
+        }
+        @media (min-width: 1024px) {
+            .container {
+                flex-direction: row;
+            }
+        }
+        .sidebar {
+            width: 250px;
+            min-width: 200px;
+            background-color: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-right: 24px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .section {
+            background-color: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .tab-button {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            color: #4b5563;
+            transition: background-color 0.2s, color 0.2s;
+            cursor: pointer;
+        }
+        .tab-button:hover {
+            background-color: #e5e7eb;
+        }
+        .tab-button.active {
+            background-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        .tab-button.active .fa-icon {
+            color: #ffffff;
+        }
+        .tab-button .fa-icon {
+            margin-right: 12px;
+            font-size: 1.2rem;
+            color: #6b7280;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            line-height: 1.5;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            border: none;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            color: #ffffff;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(107, 114, 128, 0.3);
+        }
+        .btn-success {
+            background-color: #10b981;
+            color: #ffffff;
+        }
+        .btn-success:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+        }
+        .lead-item {
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .lead-item:last-child {
+            border-bottom: none;
+        }
+        .lead-status-qualified {
+            color: #10b981;
+            font-weight: 600;
+        }
+        .lead-status-unqualified {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        .progress-bar-container {
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            height: 12px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-bar {
+            background-color: #3b82f6;
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s ease-in-out;
+        }
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 10px 0;
+        }
+        .chart-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chart-label {
+            flex-shrink: 0;
+            width: 80px; /* Adjust as needed */
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+        .chart-bar-visual {
+            flex-grow: 1;
+            height: 20px;
+            background-color: #a7d3f2;
+            border-radius: 4px;
+            transition: width 0.5s ease-in-out;
+            position: relative;
+        }
+        .chart-bar-visual span {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #374151;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Notification styles */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .notification {
+            background-color: #10b981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .notification.error {
+            background-color: #ef4444;
+        }
+        .notification.show {
+            opacity: 1;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1001; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            text-decoration: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1023px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 24px;
+            }
+            .tab-button {
+                justify-content: center;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+            .tab-button {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            .tab-button .fa-icon {
+                margin-right: 8px;
+                font-size: 1rem;
+            }
+            .grid-cols-2 > div {
+                padding: 8px;
+            }
+            .chart-label {
+                width: 60px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="notification-container"></div>
+
+    <div class="container">
+        <!-- Left Sidebar: Navigation Tabs -->
+        <div class="sidebar">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Lead Manager Pro</h2>
+            <nav>
+                <div id="tab-lead-entry" class="tab-button active" data-tab="lead-entry">
+                    <i class="fas fa-plus-circle fa-icon"></i> Add Lead
+                </div>
+                <div id="tab-scoring-config" class="tab-button" data-tab="scoring-config">
+                    <i class="fas fa-cogs fa-icon"></i> Scoring Rules
+                </div>
+                <div id="tab-leads-list" class="tab-button" data-tab="leads-list">
+                    <i class="fas fa-list-alt fa-icon"></i> Lead List
+                </div>
+                <div id="tab-analytics" class="tab-button" data-tab="analytics">
+                    <i class="fas fa-chart-line fa-icon"></i> Analytics
+                </div>
+                <div id="tab-feedback-insights" class="tab-button" data-tab="feedback-insights">
+                    <i class="fas fa-comments fa-icon"></i> Feedback Insights
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Tab Content: Lead Entry -->
+            <div id="lead-entry" class="tab-content active">
+                <div class="section">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">New Lead Data Entry</h2>
+                    <p class="text-gray-600 mb-6">Enter new lead details. Our system will simulate data hygiene and apply scoring rules instantly.</p>
+                    <form id="addLeadForm" class="space-y-4">
+                        <div>
+                            <label for="leadName" class="block text-sm font-medium text-gray-700 mb-1">Lead Name / Contact Person</label>
+                            <input type="text" id="leadName" class="form-input" placeholder="e.g., Emily Chen" required>
+                        </div>
+                        <div>
+                            <label for="leadCompany" class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                            <input type="text" id="leadCompany" class="form-input" placeholder="e.g., Quantum Innovations" required>
+                        </div>
+                        <div>
+                            <label for="leadEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input type="email" id="leadEmail" class="form-input" placeholder="e.g., emily@quantum.com" required>
+                        </div>
+                        <div>
+                            <label for="leadSource" class="block text-sm font-medium text-gray-700 mb-1">Lead Source</label>
+                            <select id="leadSource" class="form-input" required>
+                                <option value="">Select Lead Source</option>
+                                <option value="Website">Website Form</option>
+                                <option value="Referral">Referral</option>
+                                <option value="LinkedIn">LinkedIn Campaign</option>
+                                <option value="Event">Industry Event</option>
+                                <option value="ColdCall">Cold Call</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="leadIndustry" class="block text-sm font-medium text-gray-700 mb-1">Industry Sector</label>
+                            <select id="leadIndustry" class="form-input" required>
+                                <option value="">Select Industry</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Retail">Retail</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Education">Education</option>
+                                <option value="Services">Professional Services</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="leadCompanySize" class="block text-sm font-medium text-gray-700 mb-1">Company Size (Number of Employees)</label>
+                            <input type="number" id="leadCompanySize" class="form-input" min="1" placeholder="e.g., 250" required>
+                        </div>
+                        <div>
+                            <label for="leadEngagement" class="block text-sm font-medium text-gray-700 mb-1">Simulated Engagement Level (1-10, based on website activity, etc.)</label>
+                            <input type="number" id="leadEngagement" class="form-input" min="1" max="10" value="5" required>
+                        </div>
+                        <div>
+                            <label for="leadBudget" class="block text-sm font-medium text-gray-700 mb-1">Simulated Budget (USD, e.g., 50000)</label>
+                            <input type="number" id="leadBudget" class="form-input" min="0" placeholder="e.g., 50000">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full">
+                            <i class="fas fa-save mr-2"></i> Add Lead & Calculate Score
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tab Content: Scoring Configuration -->
+            <div id="scoring-config" class="tab-content">
+                <div class="section">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Define Lead Scoring Rules</h2>
+                    <p class="text-gray-600 mb-6">Customize the weights for different lead attributes. These rules directly impact the qualification score.</p>
+
+                    <div id="rules-container" class="space-y-6">
+                        <!-- Rule Type: Industry -->
+                        <div class="border rounded-lg p-4 bg-white shadow-sm">
+                            <h3 class="text-lg font-medium text-gray-700 mb-3 flex items-center"><i class="fas fa-building mr-2 text-blue-500"></i> Industry Weights</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Technology:</label><input type="number" id="rule-industry-Technology" class="form-input flex-shrink-0 w-24" value="20"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Finance:</label><input type="number" id="rule-industry-Finance" class="form-input flex-shrink-0 w-24" value="15"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Healthcare:</label><input type="number" id="rule-industry-Healthcare" class="form-input flex-shrink-0 w-24" value="10"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Retail:</label><input type="number" id="rule-industry-Retail" class="form-input flex-shrink-0 w-24" value="5"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Manufacturing:</label><input type="number" id="rule-industry-Manufacturing" class="form-input flex-shrink-0 w-24" value="8"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Education:</label><input type="number" id="rule-industry-Education" class="form-input flex-shrink-0 w-24" value="7"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Services:</label><input type="number" id="rule-industry-Services" class="form-input flex-shrink-0 w-24" value="12"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Other:</label><input type="number" id="rule-industry-Other" class="form-input flex-shrink-0 w-24" value="0"></div>
+                            </div>
+                        </div>
+
+                        <!-- Rule Type: Company Size -->
+                        <div class="border rounded-lg p-4 bg-white shadow-sm">
+                            <h3 class="text-lg font-medium text-gray-700 mb-3 flex items-center"><i class="fas fa-users mr-2 text-green-500"></i> Company Size Impact</h3>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Weight per 100 Employees:</label>
+                                <input type="number" id="rule-companySizeFactor" class="form-input" value="5" step="1">
+                                <p class="text-xs text-gray-500">e.g., 5 points for every 100 employees. Score = (Company Size / 100) * Factor.</p>
+                            </div>
+                        </div>
+
+                        <!-- Rule Type: Engagement Level -->
+                        <div class="border rounded-lg p-4 bg-white shadow-sm">
+                            <h3 class="text-lg font-medium text-gray-700 mb-3 flex items-center"><i class="fas fa-heartbeat mr-2 text-red-500"></i> Engagement Level Weight</h3>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Weight per Engagement Point (1-10):</label>
+                                <input type="number" id="rule-engagementWeight" class="form-input" value="8" step="1">
+                                <p class="text-xs text-gray-500">e.g., 8 points for each point of engagement level.</p>
+                            </div>
+                        </div>
+
+                        <!-- Rule Type: Lead Source -->
+                        <div class="border rounded-lg p-4 bg-white shadow-sm">
+                            <h3 class="text-lg font-medium text-gray-700 mb-3 flex items-center"><i class="fas fa-map-marker-alt mr-2 text-purple-500"></i> Lead Source Quality</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Website Form:</label><input type="number" id="rule-leadSource-Website" class="form-input flex-shrink-0 w-24" value="15"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Referral:</label><input type="number" id="rule-leadSource-Referral" class="form-input flex-shrink-0 w-24" value="25"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">LinkedIn Campaign:</label><input type="number" id="rule-leadSource-LinkedIn" class="form-input flex-shrink-0 w-24" value="10"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Industry Event:</label><input type="number" id="rule-leadSource-Event" class="form-input flex-shrink-0 w-24" value="20"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Cold Call:</label><input type="number" id="rule-leadSource-ColdCall" class="form-input flex-shrink-0 w-24" value="3"></div>
+                                <div class="flex items-center gap-2"><label class="text-sm flex-grow">Other:</label><input type="number" id="rule-leadSource-Other" class="form-input flex-shrink-0 w-24" value="0"></div>
+                            </div>
+                        </div>
+
+                        <!-- Rule Type: Budget -->
+                        <div class="border rounded-lg p-4 bg-white shadow-sm">
+                            <h3 class="text-lg font-medium text-gray-700 mb-3 flex items-center"><i class="fas fa-dollar-sign mr-2 text-yellow-500"></i> Budget Impact</h3>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Weight per $10,000 Budget:</label>
+                                <input type="number" id="rule-budgetFactor" class="form-input" value="1" step="0.1">
+                                <p class="text-xs text-gray-500">e.g., 1 point for every $10,000 in budget. Score = (Budget / 10000) * Factor.</p>
+                            </div>
+                        </div>
+
+                        <div class="border rounded-lg p-4 bg-white shadow-sm">
+                            <h3 class="text-lg font-medium text-gray-700 mb-3 flex items-center"><i class="fas fa-check-circle mr-2 text-blue-500"></i> Qualification Threshold</h3>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Minimum Score for Qualified Lead:</label>
+                                <input type="number" id="rule-qualifiedThreshold" class="form-input" value="70" step="1">
+                                <p class="text-xs text-gray-500">Leads with a score equal to or above this threshold are marked 'Qualified'.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="saveScoringRules" class="btn btn-secondary w-full mt-6">
+                        <i class="fas fa-save mr-2"></i> Save Scoring Rules
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Lead List -->
+            <div id="leads-list" class="tab-content">
+                <div class="section flex-grow">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">All Leads & Qualification Status</h2>
+                    <p class="text-gray-600 mb-6">Click on a lead to view its detailed scoring breakdown. Provide feedback to improve future lead generation.</p>
+                    <div id="leadsList" class="divide-y divide-gray-200 max-h-[600px] overflow-y-auto custom-scrollbar">
+                        <!-- Lead items will be injected here -->
+                        <p class="text-gray-500 text-center py-4" id="noLeadsMessage">No leads added yet. Navigate to 'Add Lead' to begin!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Analytics -->
+            <div id="analytics" class="tab-content">
+                <div class="section">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Lead Performance Analytics</h2>
+                    <p class="text-gray-600 mb-6">Visualize key metrics to understand current lead quality and quantity.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-blue-50 p-6 rounded-lg shadow-sm text-center">
+                            <i class="fas fa-users text-blue-600 text-3xl mb-3"></i>
+                            <p class="text-lg font-medium text-gray-600">Total Leads Processed</p>
+                            <p id="totalLeadsMetric" class="text-4xl font-bold text-blue-800 mt-2">0</p>
+                        </div>
+                        <div class="bg-green-50 p-6 rounded-lg shadow-sm text-center">
+                            <i class="fas fa-check-circle text-green-600 text-3xl mb-3"></i>
+                            <p class="text-lg font-medium text-gray-600">Qualified Leads (%)</p>
+                            <p id="qualifiedLeadsMetric" class="text-4xl font-bold text-green-800 mt-2">0%</p>
+                            <div class="progress-bar-container mt-3"><div id="qualifiedProgressBar" class="progress-bar bg-green-500" style="width: 0%;"></div></div>
+                        </div>
+                        <div class="bg-yellow-50 p-6 rounded-lg shadow-sm text-center">
+                            <i class="fas fa-star text-yellow-600 text-3xl mb-3"></i>
+                            <p class="text-lg font-medium text-gray-600">Average Lead Score</p>
+                            <p id="avgLeadScoreMetric" class="text-4xl font-bold text-yellow-800 mt-2">0</p>
+                        </div>
+                        <div class="bg-red-50 p-6 rounded-lg shadow-sm text-center">
+                            <i class="fas fa-times-circle text-red-600 text-3xl mb-3"></i>
+                            <p class="text-lg font-medium text-gray-600">Unqualified Feedback Count</p>
+                            <p id="unqualifiedFeedbackMetric" class="text-4xl font-bold text-red-800 mt-2">0</p>
+                        </div>
+                        <div class="bg-purple-50 p-6 rounded-lg shadow-sm text-center">
+                            <i class="fas fa-dollar-sign text-purple-600 text-3xl mb-3"></i>
+                            <p class="text-lg font-medium text-gray-600">Avg. Budget (Qualified)</p>
+                            <p id="avgQualifiedBudgetMetric" class="text-4xl font-bold text-purple-800 mt-2">$0</p>
+                        </div>
+                         <div class="bg-indigo-50 p-6 rounded-lg shadow-sm text-center">
+                            <i class="fas fa-redo-alt text-indigo-600 text-3xl mb-3"></i>
+                            <p class="text-lg font-medium text-gray-600">Model Adjustment Needed</p>
+                            <p id="modelAdjustmentNeededMetric" class="text-4xl font-bold text-indigo-800 mt-2">0</p>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Lead Score Distribution</h3>
+                    <div id="scoreDistributionChart" class="chart-container">
+                        <div class="chart-row">
+                            <span class="chart-label">0-20:</span>
+                            <div class="chart-bar-visual bg-red-400" style="width: 0%;"><span id="scoreRange0-20-count">0</span></div>
+                        </div>
+                        <div class="chart-row">
+                            <span class="chart-label">21-40:</span>
+                            <div class="chart-bar-visual bg-orange-400" style="width: 0%;"><span id="scoreRange21-40-count">0</span></div>
+                        </div>
+                        <div class="chart-row">
+                            <span class="chart-label">41-60:</span>
+                            <div class="chart-bar-visual bg-yellow-400" style="width: 0%;"><span id="scoreRange41-60-count">0</span></div>
+                        </div>
+                        <div class="chart-row">
+                            <span class="chart-label">61-80:</span>
+                            <div class="chart-bar-visual bg-blue-400" style="width: 0%;"><span id="scoreRange61-80-count">0</span></div>
+                        </div>
+                        <div class="chart-row">
+                            <span class="chart-label">81-100+:</span>
+                            <div class="chart-bar-visual bg-green-400" style="width: 0%;"><span id="scoreRange81-100-count">0</span></div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Leads by Source</h3>
+                    <div id="leadSourceChart" class="chart-container">
+                        <!-- Bars injected here -->
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Leads by Industry</h3>
+                    <div id="leadIndustryChart" class="chart-container">
+                        <!-- Bars injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Feedback Insights -->
+            <div id="feedback-insights" class="tab-content">
+                <div class="section">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Sales-Marketing Feedback Insights</h2>
+                    <p class="text-gray-600 mb-6">Review feedback from sales on lead quality. This data is critical for refining lead generation strategies.</p>
+                    <div id="feedbackList" class="divide-y divide-gray-200 max-h-[600px] overflow-y-auto custom-scrollbar">
+                        <p class="text-gray-500 text-center py-4" id="noFeedbackMessage">No feedback recorded yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lead Detail Modal -->
+    <div id="leadDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Lead Details & Score Breakdown</h2>
+            <div id="modalLeadDetails" class="space-y-3 text-gray-700">
+                <p><strong>Name:</strong> <span id="modal-name"></span></p>
+                <p><strong>Company:</strong> <span id="modal-company"></span></p>
+                <p><strong>Email:</strong> <span id="modal-email"></span></p>
+                <p><strong>Source:</strong> <span id="modal-source"></span></p>
+                <p><strong>Industry:</strong> <span id="modal-industry"></span></p>
+                <p><strong>Company Size:</strong> <span id="modal-companySize"></span> employees</p>
+                <p><strong>Engagement:</strong> <span id="modal-engagement"></span>/10</p>
+                <p><strong>Budget:</strong> <span id="modal-budget"></span></p>
+                <p class="text-xl font-bold mt-4">Calculated Score: <span id="modal-score" class="text-blue-600"></span></p>
+                <p><strong>Qualification Status:</strong> <span id="modal-status" class="font-bold"></span></p>
+
+                <h3 class="text-lg font-semibold mt-4">Score Contribution Breakdown:</h3>
+                <ul id="modal-score-breakdown" class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                    <!-- Breakdown items will be injected here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // IIFE for encapsulation, simulating module structure in a single file
+        (function() {
+            // --- Global State ---
+            let leads = [];
+            let scoringRules = {
+                industry: {
+                    Technology: 20, Finance: 15, Healthcare: 10, Retail: 5,
+                    Manufacturing: 8, Education: 7, Services: 12, Other: 0
+                },
+                companySizeFactor: 5,      // Score = (Company Size / 100) * Factor
+                engagementWeight: 8,       // Score = Engagement Level * Weight
+                leadSource: {
+                    Website: 15, Referral: 25, LinkedIn: 10, Event: 20,
+                    ColdCall: 3, Other: 0
+                },
+                budgetFactor: 1,           // Score = (Budget / 10000) * Factor
+                qualifiedThreshold: 70     // Minimum score to be qualified
+            };
+            let modelAdjustmentNeededCount = 0; // Metric for feedback insights
+
+            // --- UI Element References ---
+            const els = {
+                notificationContainer: document.getElementById('notification-container'),
+                tabButtons: document.querySelectorAll('.tab-button'),
+                tabContents: document.querySelectorAll('.tab-content'),
+                addLeadForm: document.getElementById('addLeadForm'),
+                leadsList: document.getElementById('leadsList'),
+                noLeadsMessage: document.getElementById('noLeadsMessage'),
+                feedbackList: document.getElementById('feedbackList'),
+                noFeedbackMessage: document.getElementById('noFeedbackMessage'),
+                saveScoringRulesBtn: document.getElementById('saveScoringRules'),
+
+                // Scoring Rule Inputs (dynamic way to get them)
+                ruleInputs: {},
+
+                // Metric Displays
+                totalLeadsMetric: document.getElementById('totalLeadsMetric'),
+                qualifiedLeadsMetric: document.getElementById('qualifiedLeadsMetric'),
+                qualifiedProgressBar: document.getElementById('qualifiedProgressBar'),
+                avgLeadScoreMetric: document.getElementById('avgLeadScoreMetric'),
+                unqualifiedFeedbackMetric: document.getElementById('unqualifiedFeedbackMetric'),
+                avgQualifiedBudgetMetric: document.getElementById('avgQualifiedBudgetMetric'),
+                modelAdjustmentNeededMetric: document.getElementById('modelAdjustmentNeededMetric'),
+
+                // Chart Containers
+                scoreDistributionChart: document.getElementById('scoreDistributionChart'),
+                leadSourceChart: document.getElementById('leadSourceChart'),
+                leadIndustryChart: document.getElementById('leadIndustryChart'),
+
+                // Modal Elements
+                leadDetailModal: document.getElementById('leadDetailModal'),
+                closeModalButton: document.querySelector('.modal .close-button'),
+                modalLeadDetails: document.getElementById('modalLeadDetails'),
+                modalName: document.getElementById('modal-name'),
+                modalCompany: document.getElementById('modal-company'),
+                modalEmail: document.getElementById('modal-email'),
+                modalSource: document.getElementById('modal-source'),
+                modalIndustry: document.getElementById('modal-industry'),
+                modalCompanySize: document.getElementById('modal-companySize'),
+                modalEngagement: document.getElementById('modal-engagement'),
+                modalBudget: document.getElementById('modal-budget'),
+                modalScore: document.getElementById('modal-score'),
+                modalStatus: document.getElementById('modal-status'),
+                modalScoreBreakdown: document.getElementById('modal-score-breakdown')
+            };
+
+            // Dynamically collect rule input elements
+            document.querySelectorAll('#scoring-config input, #scoring-config select').forEach(input => {
+                if (input.id.startsWith('rule-')) {
+                    els.ruleInputs[input.id] = input;
+                }
+            });
+
+            // --- Utility Functions ---
+
+            /**
+             * Generates a unique ID for an item.
+             * @returns {string} A unique ID.
+             */
+            function generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+            }
+
+            /**
+             * Displays a transient notification message to the user.
+             * @param {string} message - The message to display.
+             * @param {boolean} isError - True if it's an error notification, false for success.
+             */
+            function showNotification(message, isError = false) {
+                const notificationDiv = document.createElement('div');
+                notificationDiv.classList.add('notification');
+                if (isError) {
+                    notificationDiv.classList.add('error');
+                }
+                notificationDiv.textContent = message;
+                els.notificationContainer.appendChild(notificationDiv);
+
+                setTimeout(() => {
+                    notificationDiv.classList.add('show');
+                }, 10); // Small delay to trigger CSS transition
+
+                setTimeout(() => {
+                    notificationDiv.classList.remove('show');
+                    notificationDiv.addEventListener('transitionend', () => notificationDiv.remove());
+                }, 3000); // Hide after 3 seconds
+            }
+
+            // --- Local Storage Management ---
+
+            /**
+             * Loads data from localStorage.
+             */
+            function loadData() {
+                try {
+                    const storedLeads = localStorage.getItem('leads');
+                    const storedScoringRules = localStorage.getItem('scoringRules');
+                    const storedModelAdjustmentCount = localStorage.getItem('modelAdjustmentNeededCount');
+
+                    if (storedLeads) {
+                        leads = JSON.parse(storedLeads);
+                    }
+                    if (storedScoringRules) {
+                        scoringRules = JSON.parse(storedScoringRules);
+                    }
+                    if (storedModelAdjustmentCount) {
+                        modelAdjustmentNeededCount = parseInt(storedModelAdjustmentCount, 10);
+                    }
+                } catch (e) {
+                    console.error("Error loading data from localStorage:", e);
+                    showNotification("Failed to load saved data. Data might be corrupted.", true);
+                }
+                populateScoringRulesUI();
+                renderLeads();
+                updateMetrics();
+                renderFeedbackInsights();
+            }
+
+            /**
+             * Saves data to localStorage.
+             */
+            function saveData() {
+                try {
+                    localStorage.setItem('leads', JSON.stringify(leads));
+                    localStorage.setItem('scoringRules', JSON.stringify(scoringRules));
+                    localStorage.setItem('modelAdjustmentNeededCount', modelAdjustmentNeededCount.toString());
+                } catch (e) {
+                    console.error("Error saving data to localStorage:", e);
+                    showNotification("Failed to save data. Please check browser storage settings.", true);
+                }
+            }
+
+            // --- UI Rendering Functions ---
+
+            /**
+             * Populates the scoring rules input fields with current values.
+             */
+            function populateScoringRulesUI() {
+                for (const key in els.ruleInputs) {
+                    const id = key;
+                    const parts = id.split('-'); // e.g., ['rule', 'industry', 'Technology']
+                    let value;
+
+                    if (parts[1] === 'industry' || parts[1] === 'leadSource') {
+                        value = scoringRules[parts[1]][parts[2]];
+                    } else {
+                        value = scoringRules[parts[1]];
+                    }
+                    els.ruleInputs[id].value = value;
+                }
+            }
+
+            /**
+             * Calculates the score for a single lead based on current scoring rules.
+             * Returns the score and a breakdown of how it was calculated.
+             * @param {object} lead - The lead object.
+             * @returns {{score: number, breakdown: Array<{rule: string, points: number}>}} The calculated lead score and breakdown.
+             */
+            function calculateLeadScore(lead) {
+                let score = 0;
+                const breakdown = [];
+
+                // Industry scoring
+                const industryScore = scoringRules.industry[lead.industry] || scoringRules.industry.Other;
+                score += industryScore;
+                breakdown.push({ rule: `Industry (${lead.industry})`, points: industryScore });
+
+                // Company size scoring
+                const companySizeScore = Math.round((lead.companySize / 100) * scoringRules.companySizeFactor);
+                score += companySizeScore;
+                breakdown.push({ rule: `Company Size (${lead.companySize} employees)`, points: companySizeScore });
+
+                // Engagement level scoring
+                const engagementScore = lead.engagement * scoringRules.engagementWeight;
+                score += engagementScore;
+                breakdown.push({ rule: `Engagement Level (${lead.engagement}/10)`, points: engagementScore });
+
+                // Lead Source scoring
+                const leadSourceScore = scoringRules.leadSource[lead.leadSource] || scoringRules.leadSource.Other;
+                score += leadSourceScore;
+                breakdown.push({ rule: `Lead Source (${lead.leadSource})`, points: leadSourceScore });
+
+                // Budget scoring
+                let budgetScore = 0;
+                if (lead.budget && lead.budget > 0) {
+                    budgetScore = Math.round((lead.budget / 10000) * scoringRules.budgetFactor);
+                    score += budgetScore;
+                    breakdown.push({ rule: `Budget ($${lead.budget})`, points: budgetScore });
+                }
+
+                // Cap the score at 100 and ensure it's not negative for display purposes
+                const finalScore = Math.min(100, Math.max(0, Math.round(score)));
+                breakdown.push({ rule: `Final Score (Capped 0-100)`, points: finalScore });
+
+                return { score: finalScore, breakdown };
+            }
+
+            /**
+             * Renders all leads to the UI in the 'Lead List' tab.
+             */
+            function renderLeads() {
+                els.leadsList.innerHTML = '';
+                if (leads.length === 0) {
+                    els.noLeadsMessage.style.display = 'block';
+                } else {
+                    els.noLeadsMessage.style.display = 'none';
+                    leads.sort((a, b) => b.timestamp - a.timestamp).forEach(lead => { // Sort by newest first
+                        const { score, breakdown } = calculateLeadScore(lead);
+                        const isQualified = score >= scoringRules.qualifiedThreshold;
+                        const statusClass = isQualified ? 'lead-status-qualified' : 'lead-status-unqualified';
+
+                        const leadElement = document.createElement('div');
+                        leadElement.classList.add('lead-item', 'space-y-2', 'md:flex', 'md:justify-between', 'md:items-center', 'md:space-y-0', 'hover:bg-gray-50', 'transition-colors', 'duration-200');
+                        leadElement.dataset.id = lead.id; // Store ID for click listener
+                        leadElement.innerHTML = `
+                            <div>
+                                <p class="text-lg font-semibold text-gray-800">${lead.name} <span class="text-gray-500 font-normal">(${lead.company})</span></p>
+                                <p class="text-sm text-gray-600">Source: ${lead.leadSource} | Industry: ${lead.industry} | Size: ${lead.companySize}</p>
+                                <p class="text-md text-gray-700">Score: <span class="font-bold">${score}</span> | Status: <span class="${statusClass}">${isQualified ? 'Qualified' : 'Unqualified'}</span></p>
+                                <p class="text-xs text-gray-500 mt-1">Sales Feedback: <span class="feedback-text font-medium">${lead.feedback || 'Pending'}</span></p>
+                            </div>
+                            <div class="flex space-x-2 mt-2 md:mt-0">
+                                <button data-id="${lead.id}" data-feedback="Converted" class="btn btn-success btn-feedback"><i class="fas fa-thumbs-up"></i> Converted</button>
+                                <button data-id="${lead.id}" data-feedback="Unqualified" class="btn btn-danger btn-feedback"><i class="fas fa-thumbs-down"></i> Unqualified</button>
+                            </div>
+                        `;
+                        els.leadsList.appendChild(leadElement);
+                    });
+
+                    // Attach event listeners for feedback buttons and lead item clicks
+                    document.querySelectorAll('.btn-feedback').forEach(button => {
+                        button.addEventListener('click', handleFeedback);
+                    });
+                    document.querySelectorAll('.lead-item').forEach(item => {
+                        item.addEventListener('click', handleLeadItemClick);
+                    });
+                }
+            }
+
+            /**
+             * Renders the feedback insights tab content.
+             */
+            function renderFeedbackInsights() {
+                els.feedbackList.innerHTML = '';
+                const feedbackLeads = leads.filter(lead => lead.feedback !== '');
+                if (feedbackLeads.length === 0) {
+                    els.noFeedbackMessage.style.display = 'block';
+                } else {
+                    els.noFeedbackMessage.style.display = 'none';
+                    feedbackLeads.forEach(lead => {
+                        const feedbackElement = document.createElement('div');
+                        feedbackElement.classList.add('lead-item', 'space-y-2');
+                        feedbackElement.innerHTML = `
+                            <p class="text-lg font-semibold text-gray-800">${lead.name} <span class="text-gray-500 font-normal">(${lead.company})</span></p>
+                            <p class="text-md text-gray-700">Feedback: <span class="font-bold ${lead.feedback === 'Converted' ? 'text-green-600' : 'text-red-600'}">${lead.feedback}</span></p>
+                            <p class="text-sm text-gray-600">Lead Source: ${lead.leadSource} | Industry: ${lead.industry}</p>
+                        `;
+                        els.feedbackList.appendChild(feedbackElement);
+                    });
+                }
+            }
+
+
+            /**
+             * Updates all lead metrics and the chart displays.
+             */
+            function updateMetrics() {
+                const totalLeads = leads.length;
+                let qualifiedLeadsCount = 0;
+                let totalScore = 0;
+                let unqualifiedFeedbackCount = 0;
+                let totalQualifiedBudget = 0;
+
+                const scoreDistribution = { '0-20': 0, '21-40': 0, '41-60': 0, '61-80': 0, '81-100': 0 };
+                const leadSourceCounts = {};
+                const leadIndustryCounts = {};
+
+                leads.forEach(lead => {
+                    const { score } = calculateLeadScore(lead);
+                    totalScore += score;
+                    if (score >= scoringRules.qualifiedThreshold) {
+                        qualifiedLeadsCount++;
+                        if (lead.budget) totalQualifiedBudget += lead.budget;
+                    }
+                    if (lead.feedback === 'Unqualified') {
+                        unqualifiedFeedbackCount++;
+                    }
+
+                    // Categorize for score distribution chart
+                    if (score <= 20) scoreDistribution['0-20']++;
+                    else if (score <= 40) scoreDistribution['21-40']++;
+                    else if (score <= 60) scoreDistribution['41-60']++;
+                    else if (score <= 80) scoreDistribution['61-80']++;
+                    else scoreDistribution['81-100']++;
+
+                    // Count lead sources
+                    leadSourceCounts[lead.leadSource] = (leadSourceCounts[lead.leadSource] || 0) + 1;
+                    // Count lead industries
+                    leadIndustryCounts[lead.industry] = (leadIndustryCounts[lead.industry] || 0) + 1;
+                });
+
+                const percentageQualified = totalLeads === 0 ? 0 : ((qualifiedLeadsCount / totalLeads) * 100).toFixed(1);
+                const avgLeadScore = totalLeads === 0 ? 0 : (totalScore / totalLeads).toFixed(1);
+                const avgQualifiedBudget = qualifiedLeadsCount === 0 ? 0 : (totalQualifiedBudget / qualifiedLeadsCount);
+
+                els.totalLeadsMetric.textContent = totalLeads;
+                els.qualifiedLeadsMetric.textContent = `${percentageQualified}%`;
+                els.qualifiedProgressBar.style.width = `${percentageQualified}%`;
+                els.avgLeadScoreMetric.textContent = avgLeadScore;
+                els.unqualifiedFeedbackMetric.textContent = unqualifiedFeedbackCount;
+                els.avgQualifiedBudgetMetric.textContent = `$${avgQualifiedBudget.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+                els.modelAdjustmentNeededMetric.textContent = modelAdjustmentNeededCount;
+
+                // Update score distribution chart
+                const scoreChartBars = {
+                    '0-20': document.querySelector('#scoreDistributionChart .bg-red-400'),
+                    '21-40': document.querySelector('#scoreDistributionChart .bg-orange-400'),
+                    '41-60': document.querySelector('#scoreDistributionChart .bg-yellow-400'),
+                    '61-80': document.querySelector('#scoreDistributionChart .bg-blue-400'),
+                    '81-100': document.querySelector('#scoreDistributionChart .bg-green-400')
+                };
+                const scoreChartCounts = {
+                    '0-20': document.getElementById('scoreRange0-20-count'),
+                    '21-40': document.getElementById('scoreRange21-40-count'),
+                    '41-60': document.getElementById('scoreRange41-60-count'),
+                    '61-80': document.getElementById('scoreRange61-80-count'),
+                    '81-100': document.getElementById('scoreRange81-100-count')
+                };
+
+                const maxScoreCount = Math.max(...Object.values(scoreDistribution), 1);
+                for (const range in scoreDistribution) {
+                    const width = (scoreDistribution[range] / maxScoreCount) * 100;
+                    scoreChartBars[range].style.width = `${width > 0 ? Math.max(5, width) : 0}%`; // Min width for visibility
+                    scoreChartCounts[range].textContent = scoreDistribution[range];
+                }
+
+                // Render Leads by Source Chart
+                renderGenericChart(els.leadSourceChart, leadSourceCounts);
+
+                // Render Leads by Industry Chart
+                renderGenericChart(els.leadIndustryChart, leadIndustryCounts);
+            }
+
+            /**
+             * Renders a generic bar chart based on provided counts.
+             * @param {HTMLElement} container - The HTML element to render the chart into.
+             * @param {object} dataCounts - An object where keys are categories and values are counts.
+             */
+            function renderGenericChart(container, dataCounts) {
+                container.innerHTML = '';
+                const total = Object.values(dataCounts).reduce((sum, count) => sum + count, 0);
+                if (total === 0) {
+                    container.innerHTML = '<p class="text-gray-500 text-center py-4">No data for this chart yet.</p>';
+                    return;
+                }
+
+                const sortedData = Object.entries(dataCounts).sort(([, a], [, b]) => b - a);
+                const maxCount = Math.max(...Object.values(dataCounts));
+
+                sortedData.forEach(([label, count]) => {
+                    const percentage = total === 0 ? 0 : (count / total) * 100;
+                    const barWidth = (count / maxCount) * 100; // Relative to max count for visual scaling
+
+                    const chartRow = document.createElement('div');
+                    chartRow.classList.add('chart-row');
+                    chartRow.innerHTML = `
+                        <span class="chart-label">${label}:</span>
+                        <div class="chart-bar-visual" style="width: ${barWidth > 0 ? Math.max(5, barWidth) : 0}%; background-color: ${getBarColor(label)};">
+                            <span>${count} (${percentage.toFixed(0)}%)</span>
+                        </div>
+                    `;
+                    container.appendChild(chartRow);
+                });
+            }
+
+            /**
+             * Returns a consistent color for chart bars based on label.
+             * @param {string} label - The label for the bar.
+             * @returns {string} Hex color code.
+             */
+            function getBarColor(label) {
+                const colors = {
+                    'Website': '#4299E1', 'Referral': '#48BB78', 'LinkedIn': '#667EEA', 'Event': '#ED8936',
+                    'ColdCall': '#E53E3E', 'Other': '#A0AEC0',
+                    'Technology': '#38B2AC', 'Finance': '#9F7AEA', 'Healthcare': '#F6AD55', 'Retail': '#ECC94B',
+                    'Manufacturing': '#4FD1C5', 'Education': '#81E6D9', 'Services': '#9DECF9'
+                };
+                return colors[label] || '#A0AEC0'; // Default gray for unknown
+            }
+
+
+            // --- Event Handlers ---
+
+            /**
+             * Handles tab switching.
+             * @param {Event} event - The click event.
+             */
+            function handleTabClick(event) {
+                const clickedTab = event.currentTarget;
+                const tabId = clickedTab.dataset.tab;
+
+                els.tabButtons.forEach(button => button.classList.remove('active'));
+                clickedTab.classList.add('active');
+
+                els.tabContents.forEach(content => {
+                    if (content.id === tabId) {
+                        content.classList.add('active');
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+
+                // Update metrics and feedback insights when switching to those tabs
+                if (tabId === 'analytics') {
+                    updateMetrics();
+                } else if (tabId === 'feedback-insights') {
+                    renderFeedbackInsights();
+                }
+            }
+
+            /**
+             * Handles the form submission for adding a new lead.
+             * @param {Event} event - The form submission event.
+             */
+            function handleAddLead(event) {
+                event.preventDefault();
+
+                // Get values and trim whitespace
+                const name = document.getElementById('leadName').value.trim();
+                const company = document.getElementById('leadCompany').value.trim();
+                const email = document.getElementById('leadEmail').value.trim();
+                const source = document.getElementById('leadSource').value;
+                const industry = document.getElementById('leadIndustry').value;
+                const companySize = parseInt(document.getElementById('leadCompanySize').value);
+                const engagement = parseInt(document.getElementById('leadEngagement').value);
+                const budget = parseInt(document.getElementById('leadBudget').value) || 0; // Default to 0 if empty/invalid
+
+                // Enhanced validation
+                if (!name || !company || !email || !source || !industry) {
+                    showNotification('Please fill in all required text/select fields.', true);
+                    return;
+                }
+                if (!email.includes('@') || !email.includes('.')) {
+                    showNotification('Please enter a valid email address.', true);
+                    return;
+                }
+                if (isNaN(companySize) || companySize <= 0) {
+                    showNotification('Company Size must be a positive number.', true);
+                    return;
+                }
+                if (isNaN(engagement) || engagement < 1 || engagement > 10) {
+                    showNotification('Engagement Level must be a number between 1 and 10.', true);
+                    return;
+                }
+                if (isNaN(budget) || budget < 0) {
+                    showNotification('Budget must be a non-negative number.', true);
+                    return;
+                }
+
+                const newLead = {
+                    id: generateId(),
+                    timestamp: Date.now(), // For sorting and tracking
+                    name, company, email, leadSource: source, industry, companySize, engagement, budget,
+                    feedback: '' // To store sales-marketing alignment feedback
+                };
+
+                leads.push(newLead);
+                saveData();
+                renderLeads();
+                updateMetrics();
+                addLeadForm.reset(); // Clear the form
+                showNotification('Lead added successfully and score calculated!');
+            }
+
+            /**
+             * Handles saving of updated scoring rules.
+             */
+            function handleSaveScoringRules() {
+                try {
+                    // Update industry weights
+                    scoringRules.industry.Technology = parseInt(els.ruleInputs['rule-industry-Technology'].value);
+                    scoringRules.industry.Finance = parseInt(els.ruleInputs['rule-industry-Finance'].value);
+                    scoringRules.industry.Healthcare = parseInt(els.ruleInputs['rule-industry-Healthcare'].value);
+                    scoringRules.industry.Retail = parseInt(els.ruleInputs['rule-industry-Retail'].value);
+                    scoringRules.industry.Manufacturing = parseInt(els.ruleInputs['rule-industry-Manufacturing'].value);
+                    scoringRules.industry.Education = parseInt(els.ruleInputs['rule-industry-Education'].value);
+                    scoringRules.industry.Services = parseInt(els.ruleInputs['rule-industry-Services'].value);
+                    scoringRules.industry.Other = parseInt(els.ruleInputs['rule-industry-Other'].value);
+
+                    // Update lead source weights
+                    scoringRules.leadSource.Website = parseInt(els.ruleInputs['rule-leadSource-Website'].value);
+                    scoringRules.leadSource.Referral = parseInt(els.ruleInputs['rule-leadSource-Referral'].value);
+                    scoringRules.leadSource.LinkedIn = parseInt(els.ruleInputs['rule-leadSource-LinkedIn'].value);
+                    scoringRules.leadSource.Event = parseInt(els.ruleInputs['rule-leadSource-Event'].value);
+                    scoringRules.leadSource.ColdCall = parseInt(els.ruleInputs['rule-leadSource-ColdCall'].value);
+                    scoringRules.leadSource.Other = parseInt(els.ruleInputs['rule-leadSource-Other'].value);
+
+
+                    scoringRules.companySizeFactor = parseFloat(els.ruleInputs['rule-companySizeFactor'].value);
+                    scoringRules.engagementWeight = parseInt(els.ruleInputs['rule-engagementWeight'].value);
+                    scoringRules.budgetFactor = parseFloat(els.ruleInputs['rule-budgetFactor'].value);
+                    scoringRules.qualifiedThreshold = parseInt(els.ruleInputs['rule-qualifiedThreshold'].value);
+
+                    // Basic validation for numbers
+                    for (const key in scoringRules) {
+                        if (typeof scoringRules[key] === 'object') { // Nested objects (industry, leadSource)
+                            for (const subKey in scoringRules[key]) {
+                                if (isNaN(scoringRules[key][subKey])) {
+                                    showNotification(`Invalid number for ${key} - ${subKey}. Please re-enter.`, true);
+                                    return;
+                                }
+                            }
+                        } else { // Direct properties
+                            if (isNaN(scoringRules[key])) {
+                                showNotification(`Invalid number for ${key}. Please re-enter.`, true);
+                                return;
+                            }
+                        }
+                    }
+
+                    saveData();
+                    renderLeads(); // Re-render leads with new scores
+                    updateMetrics(); // Update metrics based on new scores
+                    showNotification('Scoring rules saved and applied successfully!');
+                } catch (e) {
+                    console.error("Error saving scoring rules:", e);
+                    showNotification('Failed to save scoring rules. Please check your inputs.', true);
+                }
+            }
+
+            /**
+             * Handles simulated sales-marketing alignment feedback.
+             * @param {Event} event - The click event from the feedback button.
+             */
+            function handleFeedback(event) {
+                event.stopPropagation(); // Prevent lead item click
+                const leadId = event.target.dataset.id;
+                const feedbackType = event.target.dataset.feedback; // 'Converted' or 'Unqualified'
+
+                const leadIndex = leads.findIndex(l => l.id === leadId);
+                if (leadIndex > -1) {
+                    const lead = leads[leadIndex];
+                    // Only update if feedback is different or empty
+                    if (lead.feedback !== feedbackType) {
+                        lead.feedback = feedbackType; // Update lead object with feedback
+
+                        // Simulate impact on lead scoring or future lead generation parameters
+                        // This is a simplified example for the prototype. In a real system, this would involve
+                        // ML models or more complex, data-driven adjustments to lead generation parameters
+                        // (e.g., adjust ad targeting, content strategy).
+                        if (feedbackType === 'Unqualified') {
+                            modelAdjustmentNeededCount++; // Increment a counter indicating need for review
+                            showNotification(`Feedback "${feedbackType}" recorded for ${lead.name}. Model adjustment noted.`);
+                        } else if (feedbackType === 'Converted') {
+                            showNotification(`Feedback "${feedbackType}" recorded for ${lead.name}. Great news!`);
+                        }
+                        leads[leadIndex] = lead; // Update the lead in the array
+                        saveData();
+                        renderLeads(); // Re-render to show updated feedback
+                        updateMetrics(); // Update metrics, especially the unqualified count and model adjustment
+                        renderFeedbackInsights(); // Update feedback list
+                    } else {
+                         showNotification(`Feedback for ${lead.name} is already "${feedbackType}".`, false);
+                    }
+                }
+            }
+
+            /**
+             * Handles clicking on a lead item to show details in a modal.
+             * @param {Event} event - The click event from the lead item.
+             */
+            function handleLeadItemClick(event) {
+                const leadId = event.currentTarget.dataset.id;
+                const lead = leads.find(l => l.id === leadId);
+
+                if (lead) {
+                    const { score, breakdown } = calculateLeadScore(lead);
+                    const isQualified = score >= scoringRules.qualifiedThreshold;
+
+                    els.modalName.textContent = lead.name;
+                    els.modalCompany.textContent = lead.company;
+                    els.modalEmail.textContent = lead.email;
+                    els.modalSource.textContent = lead.leadSource;
+                    els.modalIndustry.textContent = lead.industry;
+                    els.modalCompanySize.textContent = lead.companySize;
+                    els.modalEngagement.textContent = lead.engagement;
+                    els.modalBudget.textContent = lead.budget > 0 ? `$${lead.budget.toLocaleString()}` : 'N/A';
+                    els.modalScore.textContent = score;
+                    els.modalStatus.textContent = isQualified ? 'Qualified' : 'Unqualified';
+                    els.modalStatus.className = isQualified ? 'font-bold text-green-600' : 'font-bold text-red-600';
+
+                    // Populate score breakdown
+                    els.modalScoreBreakdown.innerHTML = '';
+                    breakdown.forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${item.rule}: ${item.points} points`;
+                        els.modalScoreBreakdown.appendChild(listItem);
+                    });
+
+                    els.leadDetailModal.style.display = 'flex'; // Show modal
+                }
+            }
+
+            /**
+             * Closes the lead detail modal.
+             */
+            function closeLeadDetailModal() {
+                els.leadDetailModal.style.display = 'none';
+            }
+
+            // --- Initialization ---
+            document.addEventListener('DOMContentLoaded', () => {
+                loadData(); // Load initial data
+
+                // Attach event listeners for tabs
+                els.tabButtons.forEach(button => {
+                    button.addEventListener('click', handleTabClick);
+                });
+
+                // Attach event listeners for forms and buttons
+                els.addLeadForm.addEventListener('submit', handleAddLead);
+                els.saveScoringRulesBtn.addEventListener('click', handleSaveScoringRules);
+                els.closeModalButton.addEventListener('click', closeLeadDetailModal);
+                window.addEventListener('click', (event) => {
+                    if (event.target === els.leadDetailModal) {
+                        closeLeadDetailModal();
+                    }
+                });
+
+                // Set initial active tab
+                document.getElementById('tab-lead-entry').click();
+            });
+
+        })(); // End of IIFE
+    </script>
+</body>
+</html>
