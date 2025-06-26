@@ -1665,6 +1665,138 @@
                 return colors[label] || '#A0AEC0'; // Default gray for unknown
             }
 
+            // --- UI Rendering Functions ---
+
+            /**
+             * Renders a creative and professional donut chart for Lead Score Distribution in the Analytics section.
+             */
+            function renderScoreDistributionDonutChart(scoreDistribution) {
+                const container = els.scoreDistributionChart;
+                container.innerHTML = '';
+                const ranges = [
+                    { label: '0-20', color: '#F87171' },
+                    { label: '21-40', color: '#FB923C' },
+                    { label: '41-60', color: '#FBBF24' },
+                    { label: '61-80', color: '#60A5FA' },
+                    { label: '81-100', color: '#34D399' }
+                ];
+                const total = Object.values(scoreDistribution).reduce((sum, v) => sum + v, 0);
+                if (total === 0) {
+                    container.innerHTML = '<p class="text-gray-500 text-center py-4">No data for this chart yet.</p>';
+                    return;
+                }
+                // Calculate angles
+                let startAngle = 0;
+                const segments = ranges.map(r => {
+                    const value = scoreDistribution[r.label] || 0;
+                    const angle = (value / total) * 360;
+                    const seg = {
+                        ...r,
+                        value,
+                        start: startAngle,
+                        end: startAngle + angle
+                    };
+                    startAngle += angle;
+                    return seg;
+                });
+                // SVG donut chart
+                const size = 220, radius = 90, thickness = 32, cx = size/2, cy = size/2;
+                let svgPaths = '';
+                segments.forEach(seg => {
+                    if (seg.value === 0) return;
+                    const start = polarToCartesian(cx, cy, radius, seg.start);
+                    const end = polarToCartesian(cx, cy, radius, seg.end);
+                    const largeArc = seg.end - seg.start > 180 ? 1 : 0;
+                    svgPaths += `
+                        <path d="M${start.x},${start.y}
+                            A${radius},${radius} 0 ${largeArc} 1 ${end.x},${end.y}
+                            L${cx},${cy}
+                            Z"
+                            fill="${seg.color}" stroke="#fff" stroke-width="2"/>
+                    `;
+                });
+                // Center text
+                const centerText = `<text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="1.5rem" fill="#374151">${total}</text>`;
+                // Legend
+                let legend = '<div class="flex flex-wrap justify-center mt-4">';
+                segments.forEach(seg => {
+                    legend += `<div class="flex items-center mx-2 mb-2"><span style="display:inline-block;width:16px;height:16px;background:${seg.color};border-radius:3px;margin-right:6px;"></span><span class="text-gray-700 text-sm font-medium">${seg.label} (${seg.value})</span></div>`;
+                });
+                legend += '</div>';
+                container.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+                            ${svgPaths}
+                            ${centerText}
+                        </svg>
+                        <div class="text-gray-600 text-base font-semibold mt-2">Total Leads</div>
+                        ${legend}
+                    </div>
+                `;
+                // Helper for arc
+                function polarToCartesian(cx, cy, r, angle) {
+                    const a = (angle-90) * Math.PI/180.0;
+                    return { x: cx + (r * Math.cos(a)), y: cy + (r * Math.sin(a)) };
+                }
+            }
+
+            // --- Metrics Update ---
+            function updateMetrics() {
+                const totalLeads = leads.length;
+                let qualifiedLeadsCount = 0;
+                let totalScore = 0;
+                let unqualifiedFeedbackCount = 0;
+                let totalQualifiedBudget = 0;
+
+                const scoreDistribution = { '0-20': 0, '21-40': 0, '41-60': 0, '61-80': 0, '81-100': 0 };
+                const leadSourceCounts = {};
+                const leadIndustryCounts = {};
+
+                leads.forEach(lead => {
+                    const { score } = calculateLeadScore(lead);
+                    totalScore += score;
+                    if (score >= scoringRules.qualifiedThreshold) {
+                        qualifiedLeadsCount++;
+                        if (lead.budget) totalQualifiedBudget += lead.budget;
+                    }
+                    if (lead.feedback === 'Unqualified') {
+                        unqualifiedFeedbackCount++;
+                    }
+
+                    // Categorize for score distribution chart
+                    if (score <= 20) scoreDistribution['0-20']++;
+                    else if (score <= 40) scoreDistribution['21-40']++;
+                    else if (score <= 60) scoreDistribution['41-60']++;
+                    else if (score <= 80) scoreDistribution['61-80']++;
+                    else scoreDistribution['81-100']++;
+
+                    // Count lead sources
+                    leadSourceCounts[lead.leadSource] = (leadSourceCounts[lead.leadSource] || 0) + 1;
+                    // Count lead industries
+                    leadIndustryCounts[lead.industry] = (leadIndustryCounts[lead.industry] || 0) + 1;
+                });
+
+                const percentageQualified = totalLeads === 0 ? 0 : ((qualifiedLeadsCount / totalLeads) * 100).toFixed(1);
+                const avgLeadScore = totalLeads === 0 ? 0 : (totalScore / totalLeads).toFixed(1);
+                const avgQualifiedBudget = qualifiedLeadsCount === 0 ? 0 : (totalQualifiedBudget / qualifiedLeadsCount);
+
+                els.totalLeadsMetric.textContent = totalLeads;
+                els.qualifiedLeadsMetric.textContent = `${percentageQualified}%`;
+                els.qualifiedProgressBar.style.width = `${percentageQualified}%`;
+                els.avgLeadScoreMetric.textContent = avgLeadScore;
+                els.unqualifiedFeedbackMetric.textContent = unqualifiedFeedbackCount;
+                els.avgQualifiedBudgetMetric.textContent = `$${avgQualifiedBudget.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+                els.modelAdjustmentNeededMetric.textContent = modelAdjustmentNeededCount;
+
+                // Replace old bar chart with donut chart
+                renderScoreDistributionDonutChart(scoreDistribution);
+
+                // Render Leads by Source Chart
+                renderGenericChart(els.leadSourceChart, leadSourceCounts);
+
+                // Render Leads by Industry Chart
+                renderGenericChart(els.leadIndustryChart, leadIndustryCounts);
+            }
 
             // --- Event Handlers ---
 
